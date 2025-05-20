@@ -17,6 +17,7 @@ public class WalkingToybot extends LinearOpMode {
         while (opModeIsActive()) {
             robot.drive(gamepad1, 0.8);
             robot.controlArm(gamepad2, 1);
+            robot.displayData(telemetry);
         }
     }
 }

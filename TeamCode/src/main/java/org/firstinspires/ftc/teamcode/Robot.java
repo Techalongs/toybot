@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class Robot {
     private DcMotor backRight;
     private DcMotor backLeft;
@@ -22,7 +24,7 @@ public class Robot {
     }
 
     private void init() {
-        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -46,7 +48,24 @@ public class Robot {
     }
 
     public void controlArm(Gamepad gamepad2, double limiter) {
-        if (bottomArmLimit.isPressed()) limiter = 0;
-        arm.setPower(-gamepad2.left_stick_y * limiter);
+        double armPower = -gamepad2.left_stick_y * limiter;
+        if (bottomArmLimit.isPressed()) {
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            armPower = Math.max(0, armPower);
+        }
+
+        arm.setPower(armPower);
+    }
+
+    public void displayData(Telemetry telemetry) {
+        telemetry.addData("Back Right Power", backRight.getPower());
+        telemetry.addData("Back Left Power", backLeft.getPower());
+        telemetry.addData("Back Right Position", backRight.getCurrentPosition());
+        telemetry.addData("Back Left Position", backLeft.getCurrentPosition());
+        telemetry.addData("Arm Power", arm.getPower());
+        telemetry.addData("Arm Position", arm.getCurrentPosition());
+        telemetry.addData("Bottom Arm Limit", bottomArmLimit.isPressed());
+        telemetry.update();
     }
 }
