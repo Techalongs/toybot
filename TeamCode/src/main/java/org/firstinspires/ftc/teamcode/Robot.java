@@ -43,16 +43,23 @@ public class Robot {
         double brPower = -gamepad1.left_stick_y - gamepad1.right_stick_x;
         double blPower = -gamepad1.left_stick_y + gamepad1.right_stick_x;
 
-        backRight.setPower(brPower * limiter);
-        backLeft.setPower(blPower * limiter);
+        if (arm.getCurrentPosition() < 2000 || gamepad1.right_bumper) {
+            backRight.setPower(brPower * limiter);
+            backLeft.setPower(blPower * limiter);
+        } else {
+            backRight.setPower(0);
+            backLeft.setPower(0);
+        }
     }
 
-    public void controlArm(Gamepad gamepad2, double limiter) {
-        double armPower = -gamepad2.left_stick_y * limiter;
+    public void controlArm(Gamepad gamepad1, double limiter) {
+        double armPower = (gamepad1.dpad_up ? 1 : gamepad1.dpad_down ? -1 : 0) * limiter;
         if (bottomArmLimit.isPressed()) {
             arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             armPower = Math.max(0, armPower);
+        } else if (arm.getCurrentPosition() >= 10500) {
+            armPower = Math.min(0, armPower);
         }
 
         arm.setPower(armPower);
